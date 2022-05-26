@@ -120,14 +120,14 @@ public class ConfigManager {
         public boolean equals(@Nullable Object o) {
             if (o instanceof ProcessScope) {
                 ProcessScope p = (ProcessScope) o;
-                return p.processName.equals(processName) && p.uid == uid;
+                return p.processName.equals(processName);
             }
             return false;
         }
 
         @Override
         public int hashCode() {
-            return processName.hashCode() ^ uid;
+            return processName.hashCode();
         }
     }
 
@@ -600,8 +600,10 @@ public class ConfigManager {
                         }
                     });
                     if (processesScope.isEmpty()) {
-                        obsoletePackages.add(app);
-                        continue;
+                        //obsoletePackages.add(app);
+                        //continue;
+                        var module = cachedModule.get(modulePackageName);
+                        cachedScope.computeIfAbsent(new ProcessScope(app.packageName, app.userId),ignored -> new LinkedList<>()).add(module);
                     }
                     var module = cachedModule.get(modulePackageName);
                     assert module != null;
