@@ -34,20 +34,20 @@ import org.lsposed.lspd.util.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
+import android.app.Instrumentation;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class LoadedApkGetCLHooker extends XC_MethodHook {
+public class makeApplicationHooker extends XC_MethodHook {
     private final LoadedApk loadedApk;
     private final Unhook unhook;
 
-    public LoadedApkGetCLHooker(LoadedApk loadedApk) {
+    public makeApplicationHooker(LoadedApk loadedApk) {
         this.loadedApk = loadedApk;
-        unhook = XposedHelpers.findAndHookMethod(LoadedApk.class, "getClassLoader", this);
+        unhook = XposedHelpers.findAndHookMethod(LoadedApk.class, "makeApplication", boolean.class, Instrumentation.class,this);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
         }
 
         try {
-            Hookers.logD("LoadedApk#getClassLoader starts");
+            Hookers.logD("LoadedApk#makeApplication starts");
 
             String packageName = ActivityThread.currentPackageName();
             String processName = ActivityThread.currentProcessName();
@@ -72,14 +72,15 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
             }
 
             Object mAppDir = XposedHelpers.getObjectField(loadedApk, "mAppDir");
-            ClassLoader classLoader = (ClassLoader) param.getResult();
-            Hookers.logD("LoadedApk#getClassLoader ends: " + mAppDir + " -> " + classLoader);
+            ClassLoader classLoader = (ClassLoader)XposedHelpers.callMethod(loadedApk, "getClassLoader");
+         
+            Hookers.logD("LoadedApk#makeApplication ends: " + mAppDir + " -> " + classLoader);
 
             if (classLoader == null) {
                 return;
             }
 
-            /*XC_LoadPackage.LoadPackageParam lpparam = new XC_LoadPackage.LoadPackageParam(
+            XC_LoadPackage.LoadPackageParam lpparam = new XC_LoadPackage.LoadPackageParam(
                     XposedBridge.sLoadedPackageCallbacks);
             lpparam.packageName = packageName;
             lpparam.processName = processName;
@@ -92,12 +93,11 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
                 hookNewXSP(lpparam);
             }
 
-            //Hookers.logD("Call handleLoadedPackage: packageName=" + lpparam.packageName + " processName=" + lpparam.processName + " isFirstApplication=" + isFirstApplication + " classLoader=" + lpparam.classLoader + " appInfo=" + lpparam.appInfo);
-            //XC_LoadPackage.callAll(lpparam);*/
-            new makeApplicationHooker(loadedApk);
+            Hookers.logD("makeApplicationHooker Call handleLoadedPackage: packageName=" + lpparam.packageName + " processName=" + lpparam.processName + " isFirstApplication=" + isFirstApplication + " classLoader=" + lpparam.classLoader + " appInfo=" + lpparam.appInfo);
+            XC_LoadPackage.callAll(lpparam);
 
         } catch (Throwable t) {
-            Hookers.logE("error when hooking LoadedApk#getClassLoader", t);
+            Hookers.logE("error when hooking LoadedApk#makeApplication", t);
         } finally {
             unhook.unhook();
         }
@@ -137,4 +137,5 @@ public class LoadedApkGetCLHooker extends XC_MethodHook {
             });
         }
     }
+
 }
