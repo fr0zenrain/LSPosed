@@ -33,6 +33,8 @@
     <string name="module_repo">仓库</string>
     <string name="module_repo_loading">加载中…</string>
     <string name="module_repo_up_to_date">所有模块均已最新</string>
+    <string name="module_repo_published_time">发布于 %s</string>
+    <string name="module_repo_updated_time">更新于 %s</string>
     <plurals name="module_repo_upgradable">
         <item quantity="other">%d 个模块可更新</item>
     </plurals>
@@ -78,6 +80,7 @@
     <string name="menuSaveToSd">保存</string>
     <string name="nav_item_logs_verbose">详细日志</string>
     <string name="nav_item_logs_module">模块日志</string>
+    <string name="logs_saved">Logs saved</string>
     <string name="logs_save_failed2">保存失败：\n%s</string>
     <string name="menuClearLog">立即清空日志</string>
     <string name="logs_cleared">成功清空日志。</string>
